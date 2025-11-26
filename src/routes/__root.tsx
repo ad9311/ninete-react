@@ -1,8 +1,8 @@
-import { TanStackDevtools } from "@tanstack/react-devtools";
 import { type QueryClient, useQuery } from "@tanstack/react-query";
 import { createRootRouteWithContext, Outlet } from "@tanstack/react-router";
-import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
-import TanStackQueryDevtools from "../integrations/tanstack-query/devtools";
+import { useEffect } from "react";
+import { type AuthResponse, useAuth } from "@/lib/auth";
+import api from "@/lib/fetch";
 
 interface MyRouterContext {
 	queryClient: QueryClient;
@@ -12,13 +12,27 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 	component: RouteComponent,
 });
 
+async function refresh(): Promise<AuthResponse> {
+	const response = await api.post<AuthResponse>("/auth/refresh");
+	if (response.error) {
+		throw new Error(response.error);
+	}
+
+	return response.data as AuthResponse;
+}
+
 function RouteComponent() {
-	const { isPending, error, isFetching, isError } = useQuery({
+	const { setSignedIn } = useAuth();
+	const { isPending, isFetching, isError, error, data } = useQuery({
 		queryKey: ["repoData"],
-		queryFn: async () => {
-			return true;
-		},
+		queryFn: refresh,
 	});
+
+	useEffect(() => {
+		if (data?.user && data.accessToken) {
+			setSignedIn(data.user, data.accessToken.value);
+		}
+	}, [data, setSignedIn]);
 
 	if (isError) {
 		return <h1>{error.message}</h1>;
@@ -28,22 +42,5 @@ function RouteComponent() {
 		return <h1>LOADING...</h1>;
 	}
 
-	return (
-		<>
-			<TanStackDevtools
-				config={{
-					position: "top-right",
-					theme: "dark",
-				}}
-				plugins={[
-					{
-						name: "Tanstack Router",
-						render: <TanStackRouterDevtoolsPanel />,
-					},
-					TanStackQueryDevtools,
-				]}
-			/>
-			<Outlet />
-		</>
-	);
+	return <Outlet />;
 }
