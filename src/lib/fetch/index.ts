@@ -11,7 +11,7 @@ export type FetchOptions = {
 };
 
 function setBaseHeaders(method: string, accessToken?: string): HeadersInit {
-	let base: HeadersInit = { Accept: "application/json" };
+	let base: HeadersInit = { Accept: "application/json", credentials: "include" };
 
 	if (accessToken) {
 		base = { ...base, Authorization: `Bearer ${accessToken}` };

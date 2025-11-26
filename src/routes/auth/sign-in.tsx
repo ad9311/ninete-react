@@ -1,44 +1,44 @@
+import { useMutation } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
-import { useActionState, useEffect } from "react";
-import type { FormAction } from "@/lib";
-import { type AuthResponse, signInAction, useAuth } from "@/lib/auth";
+import { useEffect } from "react";
+import { signInAction, useAuth } from "@/lib/auth";
 
 export const Route = createFileRoute("/auth/sign-in")({
 	component: RouteComponent,
 });
 
-const initState: FormAction<AuthResponse> = {
-	data: null,
-	error: null,
-	form: { email: "" },
-};
-
 function RouteComponent() {
-	const [state, action, isPending] = useActionState(signInAction, initState);
 	const { setSignedIn } = useAuth();
+	const mutation = useMutation({
+		mutationFn: signInAction,
+	});
+	const data = mutation.data?.data;
+	const error =
+		mutation.data?.error || (mutation.isError ? mutation.error.message : null);
+	const form = mutation.data?.form;
 
 	useEffect(() => {
-		if (state.data?.user && state.data.accessToken) {
-			setSignedIn(state.data.user, state.data.accessToken.value);
+		if (data?.user && data.accessToken) {
+			setSignedIn(data.user, data.accessToken.value);
 		}
-	}, [state.data, setSignedIn]);
+	}, [data, setSignedIn]);
 
-	if (isPending) {
+	if (mutation.isPending) {
 		return <p>LOADING...</p>;
 	}
 
 	return (
 		<div>
-			<p className="text-red-500">{state.error}</p>
+			{error ? <p className="text-red-500">{error}</p> : null}
 			<h1>Sign In</h1>
-			<form action={action}>
+			<form onSubmit={mutation.mutate}>
 				<label htmlFor="email">
 					<input
 						type="email"
 						name="email"
 						id="email"
 						placeholder="Email"
-						defaultValue={state.form.email}
+						defaultValue={form?.email}
 					/>
 				</label>
 				<br />

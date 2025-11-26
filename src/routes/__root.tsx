@@ -16,8 +16,7 @@ function RouteComponent() {
 	const { isPending, error, isFetching, isError } = useQuery({
 		queryKey: ["repoData"],
 		queryFn: async () => {
-			const response = await fetch("http://localhost:8080/users/me");
-			return await response.json();
+			return true;
 		},
 	});
 

@@ -1,5 +1,6 @@
+import type { FormEvent } from "react";
 import { create } from "zustand";
-import { type FormAction, formDataGet } from "..";
+import { type FormAction, formDataGet, newFormData } from "..";
 import api from "../fetch";
 import type { User } from "../user";
 
@@ -33,9 +34,9 @@ export const useAuth = create<Auth>((set) => ({
 }));
 
 export async function signInAction(
-	initState: FormAction<AuthResponse>,
-	formData: FormData,
-) {
+	event: FormEvent<HTMLFormElement>,
+): Promise<FormAction<AuthResponse>> {
+	const formData = newFormData(event);
 	const email = formDataGet(formData, "email");
 	const password = formDataGet(formData, "password");
 
@@ -48,6 +49,6 @@ export async function signInAction(
 		const response = await api.post<AuthResponse>("/auth/sign-in", { body });
 		return { ...response, form: { email } };
 	} catch (e) {
-		return { ...initState, error: (e as Error)?.message, form: { email } };
+		return { data: null, error: (e as Error)?.message, form: { email } };
 	}
 }
