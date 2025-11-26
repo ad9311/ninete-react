@@ -4,9 +4,10 @@ import {
 	Outlet,
 	useRouter,
 } from "@tanstack/react-router";
+import { Alert } from "@/components/Alert";
 import { useAuth } from "@/lib/auth";
 
-export const Route = createFileRoute("/(main)/_mainlayout")({
+export const Route = createFileRoute("/_mainlayout")({
 	component: RouteComponent,
 });
 
@@ -21,8 +22,8 @@ function RouteComponent() {
 
 	return (
 		<>
-			<h1>Main</h1>
 			<Outlet />
+			<Alert />
 		</>
 	);
 }

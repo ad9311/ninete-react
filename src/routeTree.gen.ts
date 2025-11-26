@@ -10,15 +10,21 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as AuthRouteRouteImport } from './routes/auth/route'
+import { Route as MainlayoutRouteRouteImport } from './routes/_mainlayout/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthSignInRouteImport } from './routes/auth/sign-in'
-import { Route as mainMainlayoutRouteRouteImport } from './routes/(main)/_mainlayout/route'
-import { Route as mainMainlayoutHomeRouteImport } from './routes/(main)/_mainlayout/home'
-import { Route as mainMainlayoutExpensesRouteImport } from './routes/(main)/_mainlayout/expenses'
+import { Route as MainlayoutHomeRouteImport } from './routes/_mainlayout/home'
+import { Route as MainlayoutExpensesRouteRouteImport } from './routes/_mainlayout/expenses/route'
+import { Route as MainlayoutExpensesIndexRouteImport } from './routes/_mainlayout/expenses/index'
+import { Route as MainlayoutExpensesNewRouteImport } from './routes/_mainlayout/expenses/new'
 
 const AuthRouteRoute = AuthRouteRouteImport.update({
   id: '/auth',
   path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MainlayoutRouteRoute = MainlayoutRouteRouteImport.update({
+  id: '/_mainlayout',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -31,63 +37,83 @@ const AuthSignInRoute = AuthSignInRouteImport.update({
   path: '/sign-in',
   getParentRoute: () => AuthRouteRoute,
 } as any)
-const mainMainlayoutRouteRoute = mainMainlayoutRouteRouteImport.update({
-  id: '/(main)/_mainlayout',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const mainMainlayoutHomeRoute = mainMainlayoutHomeRouteImport.update({
+const MainlayoutHomeRoute = MainlayoutHomeRouteImport.update({
   id: '/home',
   path: '/home',
-  getParentRoute: () => mainMainlayoutRouteRoute,
+  getParentRoute: () => MainlayoutRouteRoute,
 } as any)
-const mainMainlayoutExpensesRoute = mainMainlayoutExpensesRouteImport.update({
+const MainlayoutExpensesRouteRoute = MainlayoutExpensesRouteRouteImport.update({
   id: '/expenses',
   path: '/expenses',
-  getParentRoute: () => mainMainlayoutRouteRoute,
+  getParentRoute: () => MainlayoutRouteRoute,
+} as any)
+const MainlayoutExpensesIndexRoute = MainlayoutExpensesIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => MainlayoutExpensesRouteRoute,
+} as any)
+const MainlayoutExpensesNewRoute = MainlayoutExpensesNewRouteImport.update({
+  id: '/new',
+  path: '/new',
+  getParentRoute: () => MainlayoutExpensesRouteRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRouteRouteWithChildren
+  '/expenses': typeof MainlayoutExpensesRouteRouteWithChildren
+  '/home': typeof MainlayoutHomeRoute
   '/auth/sign-in': typeof AuthSignInRoute
-  '/expenses': typeof mainMainlayoutExpensesRoute
-  '/home': typeof mainMainlayoutHomeRoute
+  '/expenses/new': typeof MainlayoutExpensesNewRoute
+  '/expenses/': typeof MainlayoutExpensesIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRouteRouteWithChildren
+  '/home': typeof MainlayoutHomeRoute
   '/auth/sign-in': typeof AuthSignInRoute
-  '/expenses': typeof mainMainlayoutExpensesRoute
-  '/home': typeof mainMainlayoutHomeRoute
+  '/expenses/new': typeof MainlayoutExpensesNewRoute
+  '/expenses': typeof MainlayoutExpensesIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/_mainlayout': typeof MainlayoutRouteRouteWithChildren
   '/auth': typeof AuthRouteRouteWithChildren
-  '/(main)/_mainlayout': typeof mainMainlayoutRouteRouteWithChildren
+  '/_mainlayout/expenses': typeof MainlayoutExpensesRouteRouteWithChildren
+  '/_mainlayout/home': typeof MainlayoutHomeRoute
   '/auth/sign-in': typeof AuthSignInRoute
-  '/(main)/_mainlayout/expenses': typeof mainMainlayoutExpensesRoute
-  '/(main)/_mainlayout/home': typeof mainMainlayoutHomeRoute
+  '/_mainlayout/expenses/new': typeof MainlayoutExpensesNewRoute
+  '/_mainlayout/expenses/': typeof MainlayoutExpensesIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/auth' | '/auth/sign-in' | '/expenses' | '/home'
+  fullPaths:
+    | '/'
+    | '/auth'
+    | '/expenses'
+    | '/home'
+    | '/auth/sign-in'
+    | '/expenses/new'
+    | '/expenses/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth' | '/auth/sign-in' | '/expenses' | '/home'
+  to: '/' | '/auth' | '/home' | '/auth/sign-in' | '/expenses/new' | '/expenses'
   id:
     | '__root__'
     | '/'
+    | '/_mainlayout'
     | '/auth'
-    | '/(main)/_mainlayout'
+    | '/_mainlayout/expenses'
+    | '/_mainlayout/home'
     | '/auth/sign-in'
-    | '/(main)/_mainlayout/expenses'
-    | '/(main)/_mainlayout/home'
+    | '/_mainlayout/expenses/new'
+    | '/_mainlayout/expenses/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  MainlayoutRouteRoute: typeof MainlayoutRouteRouteWithChildren
   AuthRouteRoute: typeof AuthRouteRouteWithChildren
-  mainMainlayoutRouteRoute: typeof mainMainlayoutRouteRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
@@ -97,6 +123,13 @@ declare module '@tanstack/react-router' {
       path: '/auth'
       fullPath: '/auth'
       preLoaderRoute: typeof AuthRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_mainlayout': {
+      id: '/_mainlayout'
+      path: ''
+      fullPath: ''
+      preLoaderRoute: typeof MainlayoutRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -113,29 +146,66 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthSignInRouteImport
       parentRoute: typeof AuthRouteRoute
     }
-    '/(main)/_mainlayout': {
-      id: '/(main)/_mainlayout'
-      path: ''
-      fullPath: ''
-      preLoaderRoute: typeof mainMainlayoutRouteRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/(main)/_mainlayout/home': {
-      id: '/(main)/_mainlayout/home'
+    '/_mainlayout/home': {
+      id: '/_mainlayout/home'
       path: '/home'
       fullPath: '/home'
-      preLoaderRoute: typeof mainMainlayoutHomeRouteImport
-      parentRoute: typeof mainMainlayoutRouteRoute
+      preLoaderRoute: typeof MainlayoutHomeRouteImport
+      parentRoute: typeof MainlayoutRouteRoute
     }
-    '/(main)/_mainlayout/expenses': {
-      id: '/(main)/_mainlayout/expenses'
+    '/_mainlayout/expenses': {
+      id: '/_mainlayout/expenses'
       path: '/expenses'
       fullPath: '/expenses'
-      preLoaderRoute: typeof mainMainlayoutExpensesRouteImport
-      parentRoute: typeof mainMainlayoutRouteRoute
+      preLoaderRoute: typeof MainlayoutExpensesRouteRouteImport
+      parentRoute: typeof MainlayoutRouteRoute
+    }
+    '/_mainlayout/expenses/': {
+      id: '/_mainlayout/expenses/'
+      path: '/'
+      fullPath: '/expenses/'
+      preLoaderRoute: typeof MainlayoutExpensesIndexRouteImport
+      parentRoute: typeof MainlayoutExpensesRouteRoute
+    }
+    '/_mainlayout/expenses/new': {
+      id: '/_mainlayout/expenses/new'
+      path: '/new'
+      fullPath: '/expenses/new'
+      preLoaderRoute: typeof MainlayoutExpensesNewRouteImport
+      parentRoute: typeof MainlayoutExpensesRouteRoute
     }
   }
 }
+
+interface MainlayoutExpensesRouteRouteChildren {
+  MainlayoutExpensesNewRoute: typeof MainlayoutExpensesNewRoute
+  MainlayoutExpensesIndexRoute: typeof MainlayoutExpensesIndexRoute
+}
+
+const MainlayoutExpensesRouteRouteChildren: MainlayoutExpensesRouteRouteChildren =
+  {
+    MainlayoutExpensesNewRoute: MainlayoutExpensesNewRoute,
+    MainlayoutExpensesIndexRoute: MainlayoutExpensesIndexRoute,
+  }
+
+const MainlayoutExpensesRouteRouteWithChildren =
+  MainlayoutExpensesRouteRoute._addFileChildren(
+    MainlayoutExpensesRouteRouteChildren,
+  )
+
+interface MainlayoutRouteRouteChildren {
+  MainlayoutExpensesRouteRoute: typeof MainlayoutExpensesRouteRouteWithChildren
+  MainlayoutHomeRoute: typeof MainlayoutHomeRoute
+}
+
+const MainlayoutRouteRouteChildren: MainlayoutRouteRouteChildren = {
+  MainlayoutExpensesRouteRoute: MainlayoutExpensesRouteRouteWithChildren,
+  MainlayoutHomeRoute: MainlayoutHomeRoute,
+}
+
+const MainlayoutRouteRouteWithChildren = MainlayoutRouteRoute._addFileChildren(
+  MainlayoutRouteRouteChildren,
+)
 
 interface AuthRouteRouteChildren {
   AuthSignInRoute: typeof AuthSignInRoute
@@ -149,23 +219,10 @@ const AuthRouteRouteWithChildren = AuthRouteRoute._addFileChildren(
   AuthRouteRouteChildren,
 )
 
-interface mainMainlayoutRouteRouteChildren {
-  mainMainlayoutExpensesRoute: typeof mainMainlayoutExpensesRoute
-  mainMainlayoutHomeRoute: typeof mainMainlayoutHomeRoute
-}
-
-const mainMainlayoutRouteRouteChildren: mainMainlayoutRouteRouteChildren = {
-  mainMainlayoutExpensesRoute: mainMainlayoutExpensesRoute,
-  mainMainlayoutHomeRoute: mainMainlayoutHomeRoute,
-}
-
-const mainMainlayoutRouteRouteWithChildren =
-  mainMainlayoutRouteRoute._addFileChildren(mainMainlayoutRouteRouteChildren)
-
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  MainlayoutRouteRoute: MainlayoutRouteRouteWithChildren,
   AuthRouteRoute: AuthRouteRouteWithChildren,
-  mainMainlayoutRouteRoute: mainMainlayoutRouteRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
