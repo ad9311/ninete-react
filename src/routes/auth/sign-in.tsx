@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useActionState } from "react";
+import { useActionState, useEffect } from "react";
 import type { FormAction } from "@/lib";
-import { type AuthResponse, signInAction } from "@/lib/auth";
+import { type AuthResponse, signInAction, useAuth } from "@/lib/auth";
 
 export const Route = createFileRoute("/auth/sign-in")({
 	component: RouteComponent,
@@ -15,6 +15,13 @@ const initState: FormAction<AuthResponse> = {
 
 function RouteComponent() {
 	const [state, action, isPending] = useActionState(signInAction, initState);
+	const { setSignedIn } = useAuth();
+
+	useEffect(() => {
+		if (state.data?.user && state.data.accessToken) {
+			setSignedIn(state.data.user, state.data.accessToken.value);
+		}
+	}, [state.data, setSignedIn]);
 
 	if (isPending) {
 		return <p>LOADING...</p>;
