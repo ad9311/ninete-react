@@ -1,4 +1,9 @@
-import { createFileRoute, Navigate, Outlet } from "@tanstack/react-router";
+import {
+	createFileRoute,
+	Navigate,
+	Outlet,
+	useRouter,
+} from "@tanstack/react-router";
 import { useAuth } from "@/lib/auth";
 
 export const Route = createFileRoute("/(main)/_mainlayout")({
@@ -7,9 +12,11 @@ export const Route = createFileRoute("/(main)/_mainlayout")({
 
 function RouteComponent() {
 	const { isUserSignedIn } = useAuth();
+	const router = useRouter();
+	const redirect = router.state.location.href;
 
 	if (!isUserSignedIn) {
-		return <Navigate to="/auth/sign-in" />;
+		return <Navigate to="/auth/sign-in" search={{ redirect }} replace />;
 	}
 
 	return (

@@ -22,10 +22,11 @@ async function refresh(): Promise<AuthResponse> {
 }
 
 function RouteComponent() {
-	const { setSignedIn } = useAuth();
-	const { isPending, isFetching, isError, error, data } = useQuery({
-		queryKey: ["repoData"],
+	const { setSignedIn, setSignedOut } = useAuth();
+	const { isPending, isFetching, isError, data } = useQuery({
+		queryKey: ["authRefresh"],
 		queryFn: refresh,
+		retry: false,
 	});
 
 	useEffect(() => {
@@ -34,9 +35,11 @@ function RouteComponent() {
 		}
 	}, [data, setSignedIn]);
 
-	if (isError) {
-		return <h1>{error.message}</h1>;
-	}
+	useEffect(() => {
+		if (isError) {
+			setSignedOut();
+		}
+	}, [isError, setSignedOut]);
 
 	if (isPending || isFetching) {
 		return <h1>LOADING...</h1>;

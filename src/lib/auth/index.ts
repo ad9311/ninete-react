@@ -30,7 +30,8 @@ export const useAuth = create<Auth>((set) => ({
 	...initState,
 	setSignedIn: (user: User, accessToken: string) =>
 		set({ user, accessToken, isUserSignedIn: true }),
-	setSignedOut: () => set({ user: null, isUserSignedIn: false }),
+	setSignedOut: () =>
+		set({ user: null, accessToken: undefined, isUserSignedIn: false }),
 }));
 
 export async function signInAction(
