@@ -10,6 +10,7 @@ export type Auth = {
 	accessToken?: string;
 	setSignedIn: (user: User, accessToken: string) => void;
 	setSignedOut: () => void;
+	signOut: () => Promise<void>;
 };
 
 export type AuthResponse = {
@@ -26,12 +27,20 @@ const initState = {
 	isUserSignedIn: false,
 };
 
-export const useAuth = create<Auth>((set) => ({
+export const useAuth = create<Auth>((set, get) => ({
 	...initState,
 	setSignedIn: (user: User, accessToken: string) =>
 		set({ user, accessToken, isUserSignedIn: true }),
 	setSignedOut: () =>
 		set({ user: null, accessToken: undefined, isUserSignedIn: false }),
+	signOut: async () => {
+		const token = get().accessToken;
+		try {
+			await api.delete<null>("/auth/sign-out", { accessToken: token });
+		} finally {
+			set({ user: null, accessToken: undefined, isUserSignedIn: false });
+		}
+	},
 }));
 
 export async function signInAction(
@@ -51,5 +60,33 @@ export async function signInAction(
 		return { ...response, form: { email } };
 	} catch (e) {
 		return { data: null, error: (e as Error)?.message, form: { email } };
+	}
+}
+
+export async function signUpAction(
+	event: FormEvent<HTMLFormElement>,
+): Promise<FormAction<AuthResponse>> {
+	const formData = newFormData(event);
+	const username = formDataGet(formData, "username");
+	const email = formDataGet(formData, "email");
+	const password = formDataGet(formData, "password");
+	const passwordConfirmation = formDataGet(formData, "passwordConfirmation");
+
+	try {
+		const body = {
+			username,
+			email,
+			password,
+			passwordConfirmation,
+		};
+
+		const response = await api.post<AuthResponse>("/auth/sign-up", { body });
+		return { ...response, form: { email, username } };
+	} catch (e) {
+		return {
+			data: null,
+			error: (e as Error)?.message,
+			form: { email, username },
+		};
 	}
 }

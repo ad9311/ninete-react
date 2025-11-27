@@ -13,7 +13,7 @@ export const Route = createFileRoute("/_mainlayout")({
 });
 
 function RouteComponent() {
-	const { isUserSignedIn, setSignedOut, user } = useAuth();
+	const { isUserSignedIn, signOut, user } = useAuth();
 	const router = useRouter();
 	const redirect = router.state.location.href;
 
@@ -45,7 +45,9 @@ function RouteComponent() {
 						) : null}
 						<button
 							type="button"
-							onClick={setSignedOut}
+							onClick={() => {
+								void signOut();
+							}}
 							className="rounded-md border border-slate-200 px-3 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-100"
 						>
 							Sign out

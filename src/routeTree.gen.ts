@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as AuthRouteRouteImport } from './routes/auth/route'
 import { Route as MainlayoutRouteRouteImport } from './routes/_mainlayout/route'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthSignUpRouteImport } from './routes/auth/sign-up'
 import { Route as AuthSignInRouteImport } from './routes/auth/sign-in'
 import { Route as MainlayoutHomeRouteImport } from './routes/_mainlayout/home'
 import { Route as MainlayoutExpensesRouteRouteImport } from './routes/_mainlayout/expenses/route'
@@ -32,6 +33,11 @@ const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AuthSignUpRoute = AuthSignUpRouteImport.update({
+  id: '/sign-up',
+  path: '/sign-up',
+  getParentRoute: () => AuthRouteRoute,
 } as any)
 const AuthSignInRoute = AuthSignInRouteImport.update({
   id: '/sign-in',
@@ -71,6 +77,7 @@ export interface FileRoutesByFullPath {
   '/expenses': typeof MainlayoutExpensesRouteRouteWithChildren
   '/home': typeof MainlayoutHomeRoute
   '/auth/sign-in': typeof AuthSignInRoute
+  '/auth/sign-up': typeof AuthSignUpRoute
   '/expenses/$expenseId': typeof MainlayoutExpensesExpenseIdRoute
   '/expenses/new': typeof MainlayoutExpensesNewRoute
   '/expenses/': typeof MainlayoutExpensesIndexRoute
@@ -80,6 +87,7 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRouteRouteWithChildren
   '/home': typeof MainlayoutHomeRoute
   '/auth/sign-in': typeof AuthSignInRoute
+  '/auth/sign-up': typeof AuthSignUpRoute
   '/expenses/$expenseId': typeof MainlayoutExpensesExpenseIdRoute
   '/expenses/new': typeof MainlayoutExpensesNewRoute
   '/expenses': typeof MainlayoutExpensesIndexRoute
@@ -92,6 +100,7 @@ export interface FileRoutesById {
   '/_mainlayout/expenses': typeof MainlayoutExpensesRouteRouteWithChildren
   '/_mainlayout/home': typeof MainlayoutHomeRoute
   '/auth/sign-in': typeof AuthSignInRoute
+  '/auth/sign-up': typeof AuthSignUpRoute
   '/_mainlayout/expenses/$expenseId': typeof MainlayoutExpensesExpenseIdRoute
   '/_mainlayout/expenses/new': typeof MainlayoutExpensesNewRoute
   '/_mainlayout/expenses/': typeof MainlayoutExpensesIndexRoute
@@ -104,6 +113,7 @@ export interface FileRouteTypes {
     | '/expenses'
     | '/home'
     | '/auth/sign-in'
+    | '/auth/sign-up'
     | '/expenses/$expenseId'
     | '/expenses/new'
     | '/expenses/'
@@ -113,6 +123,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/home'
     | '/auth/sign-in'
+    | '/auth/sign-up'
     | '/expenses/$expenseId'
     | '/expenses/new'
     | '/expenses'
@@ -124,6 +135,7 @@ export interface FileRouteTypes {
     | '/_mainlayout/expenses'
     | '/_mainlayout/home'
     | '/auth/sign-in'
+    | '/auth/sign-up'
     | '/_mainlayout/expenses/$expenseId'
     | '/_mainlayout/expenses/new'
     | '/_mainlayout/expenses/'
@@ -157,6 +169,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/auth/sign-up': {
+      id: '/auth/sign-up'
+      path: '/sign-up'
+      fullPath: '/auth/sign-up'
+      preLoaderRoute: typeof AuthSignUpRouteImport
+      parentRoute: typeof AuthRouteRoute
     }
     '/auth/sign-in': {
       id: '/auth/sign-in'
@@ -237,10 +256,12 @@ const MainlayoutRouteRouteWithChildren = MainlayoutRouteRoute._addFileChildren(
 
 interface AuthRouteRouteChildren {
   AuthSignInRoute: typeof AuthSignInRoute
+  AuthSignUpRoute: typeof AuthSignUpRoute
 }
 
 const AuthRouteRouteChildren: AuthRouteRouteChildren = {
   AuthSignInRoute: AuthSignInRoute,
+  AuthSignUpRoute: AuthSignUpRoute,
 }
 
 const AuthRouteRouteWithChildren = AuthRouteRoute._addFileChildren(
