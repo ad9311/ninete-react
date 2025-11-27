@@ -1,6 +1,7 @@
 import { type QueryClient, useQuery } from "@tanstack/react-query";
 import { createRootRouteWithContext, Outlet } from "@tanstack/react-router";
 import { useEffect } from "react";
+import Loading from "@/components/Loading";
 import { type AuthResponse, useAuth } from "@/lib/auth";
 import api from "@/lib/fetch";
 
@@ -42,7 +43,7 @@ function RouteComponent() {
 	}, [isError, setSignedOut]);
 
 	if (isPending || isFetching) {
-		return <h1>LOADING...</h1>;
+		return <Loading label="Loading session" fullscreen />;
 	}
 
 	return <Outlet />;

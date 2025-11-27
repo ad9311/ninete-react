@@ -20,10 +20,5 @@ function RouteComponent() {
 		return <Navigate to={redirect || "/home"} replace />;
 	}
 
-	return (
-		<>
-			<h1>Auth</h1>
-			<Outlet />
-		</>
-	);
+	return <Outlet />;
 }

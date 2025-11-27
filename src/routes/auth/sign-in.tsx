@@ -1,6 +1,8 @@
 import { useMutation } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
+import type { FormEvent } from "react";
 import { useEffect } from "react";
+import Loading from "@/components/Loading";
 import { signInAction, useAuth } from "@/lib/auth";
 
 export const Route = createFileRoute("/auth/sign-in")({
@@ -10,7 +12,7 @@ export const Route = createFileRoute("/auth/sign-in")({
 function RouteComponent() {
 	const { setSignedIn } = useAuth();
 	const mutation = useMutation({
-		mutationFn: signInAction,
+		mutationFn: (event: FormEvent<HTMLFormElement>) => signInAction(event),
 	});
 	const data = mutation.data?.data;
 	const error =
@@ -24,34 +26,73 @@ function RouteComponent() {
 	}, [data, setSignedIn]);
 
 	if (mutation.isPending) {
-		return <p>LOADING...</p>;
+		return <Loading label="Signing you in" fullscreen />;
 	}
 
 	return (
-		<div>
-			{error ? <p className="text-red-500">{error}</p> : null}
-			<h1>Sign In</h1>
-			<form onSubmit={mutation.mutate}>
-				<label htmlFor="email">
-					<input
-						type="email"
-						name="email"
-						id="email"
-						placeholder="Email"
-						defaultValue={form?.email}
-					/>
-				</label>
-				<br />
-				<label htmlFor="password">
-					<input
-						type="password"
-						name="password"
-						id="password"
-						placeholder="****"
-					/>
-				</label>
-				<button type="submit">Sign in!</button>
-			</form>
+		<div className="flex min-h-screen items-center justify-center bg-slate-50 px-4 py-12">
+			<div className="w-full max-w-md space-y-6 rounded-lg border border-slate-200 bg-white p-8">
+				<div className="space-y-2 text-center">
+					<p className="text-xs font-semibold uppercase tracking-wide text-blue-700">
+						Ninete
+					</p>
+					<h1 className="text-2xl font-bold tracking-tight text-slate-900">
+						Sign in
+					</h1>
+					<p className="text-sm text-slate-500">
+						Access your expenses dashboard.
+					</p>
+				</div>
+
+				{error ? (
+					<div className="rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-800">
+						{error}
+					</div>
+				) : null}
+
+				<form onSubmit={mutation.mutate} className="space-y-4">
+					<div className="flex flex-col gap-2 text-left">
+						<label
+							htmlFor="email"
+							className="text-sm font-semibold text-slate-700"
+						>
+							Email
+						</label>
+						<input
+							type="email"
+							name="email"
+							id="email"
+							placeholder="Email"
+							defaultValue={form?.email}
+							className="w-full rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-800 outline-none transition focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-100"
+						/>
+					</div>
+
+					<div className="flex flex-col gap-2 text-left">
+						<label
+							htmlFor="password"
+							className="text-sm font-semibold text-slate-700"
+						>
+							Password
+						</label>
+						<input
+							type="password"
+							name="password"
+							id="password"
+							placeholder="••••••"
+							className="w-full rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-800 outline-none transition focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-100"
+						/>
+					</div>
+
+					<button
+						type="submit"
+						disabled={mutation.isPending}
+						className="w-full rounded-md border border-blue-200 bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-blue-300"
+					>
+						{mutation.isPending ? "Signing in..." : "Sign in"}
+					</button>
+				</form>
+			</div>
 		</div>
 	);
 }
