@@ -51,8 +51,8 @@ function parseDateString(dateValue: string): number {
 	const isoDatePattern = /^\d{4}-\d{2}-\d{2}$/;
 	if (isoDatePattern.test(dateValue)) {
 		const [year, month, day] = dateValue.split("-").map((part) => Number(part));
-		const date = new Date(year, month - 1, day);
-		return Math.floor(date.getTime() / 1000);
+		const utcMillis = Date.UTC(year, month - 1, day, 0, 0, 0);
+		return Math.floor(utcMillis / 1000);
 	}
 
 	const numeric = Number(dateValue);

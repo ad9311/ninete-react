@@ -72,22 +72,18 @@ function RouteComponent() {
 		const now = new Date();
 		const startOfDaySec = (date: Date): number =>
 			Math.floor(
-				new Date(
-					date.getFullYear(),
-					date.getMonth(),
-					date.getDate(),
-				).getTime() / 1000,
+				Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()) / 1000,
 			);
 		const endOfDaySec = (date: Date): number =>
 			Math.floor(
-				new Date(
+				Date.UTC(
 					date.getFullYear(),
 					date.getMonth(),
 					date.getDate(),
 					23,
 					59,
 					59,
-				).getTime() / 1000,
+				) / 1000,
 			);
 
 		const addDateRange = (start?: number, end?: number) => {
