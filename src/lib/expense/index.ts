@@ -19,6 +19,52 @@ export type ExpensePayload = {
 	date: number;
 };
 
+export type ExpenseList = {
+	items: Expense[];
+	perPage: number;
+	page: number;
+	rows: number;
+};
+
+export type QueryOptions = {
+	filters?: {
+		fields: Array<{
+			name: string;
+			value: number | string;
+			operator: "=" | "!=" | ">" | "<" | ">=" | "<=";
+		}>;
+		connector?: "AND" | "OR";
+	};
+	sorting?: {
+		field: string;
+		order: "asc" | "desc";
+	};
+	pagination?: {
+		perPage: number;
+		page: number;
+	};
+};
+
+function parseDateString(dateValue: string): number {
+	if (!dateValue) return 0;
+
+	const isoDatePattern = /^\d{4}-\d{2}-\d{2}$/;
+	if (isoDatePattern.test(dateValue)) {
+		const [year, month, day] = dateValue.split("-").map((part) => Number(part));
+		const date = new Date(year, month - 1, day);
+		return Math.floor(date.getTime() / 1000);
+	}
+
+	const numeric = Number(dateValue);
+	if (!Number.isNaN(numeric)) {
+		return Math.floor(numeric > 1_000_000_000_000 ? numeric / 1000 : numeric);
+	}
+
+	const parsed = Date.parse(dateValue);
+	if (Number.isNaN(parsed)) return 0;
+	return Math.floor(parsed / 1000);
+}
+
 type RawExpense = Partial<{
 	id: string | number;
 	categoryId: string | number;
@@ -43,9 +89,7 @@ function normalizeDateValue(value: unknown): number {
 	}
 
 	if (typeof value === "string") {
-		const parsed = Date.parse(value);
-		if (Number.isNaN(parsed)) return 0;
-		return Math.floor(parsed / 1000);
+		return parseDateString(value);
 	}
 
 	return 0;
@@ -91,12 +135,45 @@ export function expensePayloadFromForm(
 
 export async function listExpenses(
 	accessToken?: string,
-): Promise<AppResponse<Expense[]>> {
-	const response = await api.get<Expense[]>("/expenses", { accessToken });
+	queryOptions?: QueryOptions,
+): Promise<AppResponse<ExpenseList>> {
+	const queryParam = queryOptions
+		? `?query_options=${encodeURIComponent(JSON.stringify(queryOptions))}`
+		: "";
+	const response = await api.get<ExpenseList>(`/expenses${queryParam}`, {
+		accessToken,
+	});
+
+	const source =
+		(response.data as unknown as Record<string, unknown>) ||
+		({} as Record<string, unknown>);
+	const itemsRaw = Array.isArray(response.data)
+		? response.data
+		: Array.isArray((source as Record<string, unknown>).data)
+			? ((source as Record<string, unknown>).data as unknown[])
+			: [];
+	const perPage = Number(
+		(source as Record<string, unknown>).perPage ??
+			queryOptions?.pagination?.perPage ??
+			0,
+	);
+	const page = Number(
+		(source as Record<string, unknown>).page ??
+			queryOptions?.pagination?.page ??
+			1,
+	);
+	const rows = Number(
+		(source as Record<string, unknown>).rows ?? itemsRaw.length,
+	);
 
 	return {
 		...response,
-		data: response.data?.map(normalizeExpense) ?? [],
+		data: {
+			items: itemsRaw.map((item) => normalizeExpense(item)),
+			perPage,
+			page,
+			rows,
+		},
 	};
 }
 
