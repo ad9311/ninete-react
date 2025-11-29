@@ -26,6 +26,19 @@ function RouteComponent() {
 	const { setAlert } = useAlert();
 	const queryClient = useQueryClient();
 	const { categories, fetchCategories } = useCategories();
+	const [categoryFilter, setCategoryFilter] = useState<string>("");
+	const [dateFilter, setDateFilter] = useState<
+		| "all"
+		| "today"
+		| "last7"
+		| "thisMonth"
+		| "lastMonth"
+		| "sixMonths"
+		| "thisYear"
+		| "custom"
+	>("all");
+	const [customStart, setCustomStart] = useState<string>("");
+	const [customEnd, setCustomEnd] = useState<string>("");
 	const [queryOptions, setQueryOptions] = useState<QueryOptions>({
 		filters: undefined,
 		sorting: {
@@ -37,6 +50,89 @@ function RouteComponent() {
 			page: 1,
 		},
 	});
+
+	type FilterField = NonNullable<QueryOptions["filters"]>["fields"][number];
+
+	const buildFilters = (
+		categoryValue: string,
+		dateValue: typeof dateFilter,
+		startDate: string,
+		endDate: string,
+	): QueryOptions["filters"] => {
+		const fields: FilterField[] = [];
+
+		if (categoryValue) {
+			fields.push({
+				name: "category_id",
+				value: Number(categoryValue),
+				operator: "=",
+			});
+		}
+
+		const now = new Date();
+		const startOfDaySec = (date: Date): number =>
+			Math.floor(
+				new Date(
+					date.getFullYear(),
+					date.getMonth(),
+					date.getDate(),
+				).getTime() / 1000,
+			);
+		const endOfDaySec = (date: Date): number =>
+			Math.floor(
+				new Date(
+					date.getFullYear(),
+					date.getMonth(),
+					date.getDate(),
+					23,
+					59,
+					59,
+				).getTime() / 1000,
+			);
+
+		const addDateRange = (start?: number, end?: number) => {
+			if (start !== undefined) {
+				fields.push({ name: "date", value: start, operator: ">=" });
+			}
+			if (end !== undefined) {
+				fields.push({ name: "date", value: end, operator: "<=" });
+			}
+		};
+
+		if (dateValue !== "all") {
+			if (dateValue === "today") {
+				const start = startOfDaySec(now);
+				const end = endOfDaySec(now);
+				addDateRange(start, end);
+			} else if (dateValue === "last7") {
+				const startDate = new Date(now);
+				startDate.setDate(now.getDate() - 6);
+				addDateRange(startOfDaySec(startDate), endOfDaySec(now));
+			} else if (dateValue === "thisMonth") {
+				const startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+				addDateRange(startOfDaySec(startDate), endOfDaySec(now));
+			} else if (dateValue === "lastMonth") {
+				const startDate = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+				const endDatePrev = new Date(now.getFullYear(), now.getMonth(), 0);
+				addDateRange(startOfDaySec(startDate), endOfDaySec(endDatePrev));
+			} else if (dateValue === "sixMonths") {
+				const startDate = new Date(now);
+				startDate.setMonth(now.getMonth() - 6);
+				addDateRange(startOfDaySec(startDate), endOfDaySec(now));
+			} else if (dateValue === "thisYear") {
+				const startDate = new Date(now.getFullYear(), 0, 1);
+				addDateRange(startOfDaySec(startDate), endOfDaySec(now));
+			} else if (dateValue === "custom") {
+				if (startDate && endDate) {
+					const start = startOfDaySec(new Date(startDate));
+					const end = endOfDaySec(new Date(endDate));
+					addDateRange(start, end);
+				}
+			}
+		}
+
+		return fields.length > 0 ? { fields, connector: "AND" } : undefined;
+	};
 
 	const expensesQuery = useQuery({
 		queryKey: ["expenses", queryOptions],
@@ -80,6 +176,23 @@ function RouteComponent() {
 		void fetchCategories(accessToken);
 	}, [fetchCategories, accessToken]);
 
+	const updateFilters = (
+		categoryValue: string,
+		dateValue: typeof dateFilter,
+		startDate: string,
+		endDate: string,
+	) => {
+		const filters = buildFilters(categoryValue, dateValue, startDate, endDate);
+		setQueryOptions((prev) => ({
+			...prev,
+			filters,
+			pagination: {
+				perPage: prev.pagination?.perPage ?? 20,
+				page: 1,
+			},
+		}));
+	};
+
 	const categoryLookup = useMemo(() => {
 		const lookup: Record<string, string> = {};
 		categories.forEach((category) => {
@@ -103,27 +216,21 @@ function RouteComponent() {
 	};
 
 	const handleCategoryFilterChange = (value: string) => {
-		const categoryValue = value ? Number(value) : undefined;
-		setQueryOptions((prev) => ({
-			...prev,
-			filters:
-				categoryValue === undefined
-					? undefined
-					: {
-							fields: [
-								{
-									name: "category_id",
-									value: categoryValue,
-									operator: "=",
-								},
-							],
-							connector: "AND",
-						},
-			pagination: {
-				perPage: prev.pagination?.perPage ?? 20,
-				page: 1,
-			},
-		}));
+		setCategoryFilter(value);
+		updateFilters(value, dateFilter, customStart, customEnd);
+	};
+
+	const handleDateFilterChange = (value: typeof dateFilter) => {
+		setDateFilter(value);
+		const nextStart = value === "custom" ? customStart : "";
+		const nextEnd = value === "custom" ? customEnd : "";
+		updateFilters(categoryFilter, value, nextStart, nextEnd);
+	};
+
+	const handleCustomDateChange = (start: string, end: string) => {
+		setCustomStart(start);
+		setCustomEnd(end);
+		updateFilters(categoryFilter, dateFilter, start, end);
 	};
 
 	const toggleSort = (field: string) => {
@@ -202,11 +309,7 @@ function RouteComponent() {
 						</label>
 						<select
 							id="filter-category"
-							defaultValue={
-								queryOptions.filters?.fields?.[0]?.value !== undefined
-									? String(queryOptions.filters.fields[0].value)
-									: ""
-							}
+							value={categoryFilter}
 							onChange={(e) => handleCategoryFilterChange(e.target.value)}
 							className="w-48 rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-800 outline-none transition focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-100"
 						>
@@ -218,6 +321,63 @@ function RouteComponent() {
 							))}
 						</select>
 					</div>
+
+					<div className="flex flex-col gap-1">
+						<label
+							htmlFor="filter-date"
+							className="text-xs font-semibold uppercase tracking-wide text-slate-500"
+						>
+							Date filter
+						</label>
+						<select
+							id="filter-date"
+							value={dateFilter}
+							onChange={(e) =>
+								handleDateFilterChange(e.target.value as typeof dateFilter)
+							}
+							className="w-48 rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-800 outline-none transition focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-100"
+						>
+							<option value="all">All dates</option>
+							<option value="today">Today</option>
+							<option value="last7">Last 7 days</option>
+							<option value="thisMonth">This month</option>
+							<option value="lastMonth">Last month</option>
+							<option value="sixMonths">Last 6 months</option>
+							<option value="thisYear">This year (so far)</option>
+							<option value="custom">Custom range</option>
+						</select>
+					</div>
+
+					{dateFilter === "custom" ? (
+						<div className="flex flex-wrap items-center gap-2 text-sm text-slate-700">
+							<label className="flex flex-col gap-1">
+								<span className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+									From
+								</span>
+								<input
+									type="date"
+									value={customStart}
+									onChange={(e) =>
+										handleCustomDateChange(e.target.value, customEnd)
+									}
+									className="rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-800 outline-none transition focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-100"
+								/>
+							</label>
+							<label className="flex flex-col gap-1">
+								<span className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+									To
+								</span>
+								<input
+									type="date"
+									value={customEnd}
+									onChange={(e) =>
+										handleCustomDateChange(customStart, e.target.value)
+									}
+									className="rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-800 outline-none transition focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-100"
+								/>
+							</label>
+						</div>
+					) : null}
 				</div>
 
 				<div className="flex items-center gap-2 text-sm text-slate-600">
