@@ -37,7 +37,7 @@ function RouteComponent() {
 		onError: (error: Error) => setAlert(error.message, "error"),
 	});
 
-	const today = Math.floor(Date.now() / 1000);
+	const todayLocal = formatLocalDateTime(new Date());
 
 	useEffect(() => {
 		void fetchCategories(accessToken);
@@ -76,11 +76,26 @@ function RouteComponent() {
 			) : null}
 
 			<NewExpenseForm
-				defaultValues={{ date: today }}
+				defaultValues={{ date: todayLocal }}
 				onSubmit={(event) => mutation.mutate(event)}
 				isSubmitting={mutation.isPending}
 				categories={categories}
 			/>
 		</div>
 	);
+}
+
+function formatLocalDateTime(date: Date): string {
+	const pad = (value: number): string => String(value).padStart(2, "0");
+	const local = new Date(date);
+	local.setSeconds(0, 0);
+
+	const year = local.getFullYear();
+	const month = pad(local.getMonth() + 1);
+	const day = pad(local.getDate());
+	const hours = pad(local.getHours());
+	const minutes = pad(local.getMinutes());
+	const seconds = pad(local.getSeconds());
+
+	return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}`;
 }

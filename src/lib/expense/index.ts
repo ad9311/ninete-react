@@ -16,7 +16,7 @@ export type ExpensePayload = {
 	categoryId: number;
 	description: string;
 	amount: number; // cents
-	date: number;
+	date: string; // RFC3339 local time
 };
 
 export type ExpenseList = {
@@ -63,6 +63,38 @@ function parseDateString(dateValue: string): number {
 	const parsed = Date.parse(dateValue);
 	if (Number.isNaN(parsed)) return 0;
 	return Math.floor(parsed / 1000);
+}
+
+function toRFC3339Local(dateValue: string): string {
+	if (!dateValue) return "";
+
+	const pad = (value: number): string => String(value).padStart(2, "0");
+	const buildString = (date: Date): string => {
+		const offsetMinutes = date.getTimezoneOffset();
+		const sign = offsetMinutes > 0 ? "-" : "+";
+		const absOffset = Math.abs(offsetMinutes);
+		const offsetHours = pad(Math.floor(absOffset / 60));
+		const offsetMins = pad(absOffset % 60);
+		const timezone =
+			offsetMinutes === 0 ? "Z" : `${sign}${offsetHours}:${offsetMins}`;
+
+		return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(
+			date.getDate(),
+		)}T${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(
+			date.getSeconds(),
+		)}${timezone}`;
+	};
+
+	const dateOnlyPattern = /^\d{4}-\d{2}-\d{2}$/;
+	if (dateOnlyPattern.test(dateValue)) {
+		const [year, month, day] = dateValue.split("-").map((part) => Number(part));
+		const date = new Date(year, month - 1, day, 0, 0, 0, 0);
+		return buildString(date);
+	}
+
+	const parsed = Date.parse(dateValue);
+	if (Number.isNaN(parsed)) return "";
+	return buildString(new Date(parsed));
 }
 
 type RawExpense = Partial<{
@@ -118,7 +150,7 @@ export function expensePayloadFromForm(
 	const formData = newFormData(event);
 	const categoryId = Number(formDataGet(formData, "categoryId"));
 	const dateInput = formDataGet(formData, "date");
-	const date = normalizeDateValue(dateInput);
+	const date = toRFC3339Local(dateInput);
 	const amountInput = Number.parseFloat(formDataGet(formData, "amount"));
 	const amount =
 		Number.isNaN(amountInput) || !Number.isFinite(amountInput)

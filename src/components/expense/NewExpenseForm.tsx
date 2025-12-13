@@ -1,9 +1,9 @@
 import type { FormEvent } from "react";
 import type { Category } from "@/lib/category";
-import type { ExpensePayload } from "@/lib/expense";
+import type { Expense, ExpensePayload } from "@/lib/expense";
 
 type NewExpenseFormProps = {
-	defaultValues?: Partial<ExpensePayload>;
+	defaultValues?: Partial<ExpensePayload> | Partial<Expense>;
 	categories?: Category[];
 	onSubmit: (event: FormEvent<HTMLFormElement>) => void;
 	submitLabel?: string;
@@ -17,10 +17,7 @@ function NewExpenseForm({
 	submitLabel = "Save expense",
 	isSubmitting = false,
 }: NewExpenseFormProps) {
-	const dateValue =
-		typeof defaultValues?.date === "number" && defaultValues.date > 0
-			? formatDateInput(defaultValues.date)
-			: "";
+	const dateValue = formatDateInput(defaultValues?.date);
 
 	return (
 		<form
@@ -110,13 +107,14 @@ function NewExpenseForm({
 						htmlFor="date"
 						className="text-sm font-semibold text-slate-700"
 					>
-						Date
+						Date &amp; time
 					</label>
 					<input
 						id="date"
 						name="date"
-						type="date"
+						type="datetime-local"
 						defaultValue={dateValue}
+						step="1"
 						className="w-full rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-800 outline-none transition focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-100"
 					/>
 				</div>
@@ -137,10 +135,20 @@ function NewExpenseForm({
 
 export default NewExpenseForm;
 
-function formatDateInput(seconds: number): string {
-	const date = new Date(seconds * 1000);
+function formatDateInput(value?: number | string): string {
+	if (value === undefined || value === null) return "";
+
+	const date =
+		typeof value === "number" ? new Date(value * 1000) : new Date(value || "");
+
+	if (Number.isNaN(date.getTime())) return "";
+
 	const year = date.getFullYear();
 	const month = String(date.getMonth() + 1).padStart(2, "0");
 	const day = String(date.getDate()).padStart(2, "0");
-	return `${year}-${month}-${day}`;
+	const hours = String(date.getHours()).padStart(2, "0");
+	const minutes = String(date.getMinutes()).padStart(2, "0");
+	const seconds = String(date.getSeconds()).padStart(2, "0");
+
+	return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}`;
 }
