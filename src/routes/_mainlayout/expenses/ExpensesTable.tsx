@@ -54,74 +54,76 @@ function ExpensesTable({
 }: ExpensesTableProps) {
 	return (
 		<div className="overflow-hidden rounded-lg border border-slate-200 bg-white">
-			<table className="min-w-full divide-y divide-slate-200">
-				<thead className="bg-slate-50">
-					<tr>
-						<SortableHeader
-							field="category_id"
-							label="Category"
-							sorting={sorting}
-							onToggle={onToggleSort}
-						/>
-						<th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
-							Description
-						</th>
-						<SortableHeader
-							field="amount"
-							label="Amount"
-							sorting={sorting}
-							onToggle={onToggleSort}
-						/>
-						<SortableHeader
-							field="date"
-							label="Date"
-							sorting={sorting}
-							onToggle={onToggleSort}
-						/>
-						<th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wide text-slate-500">
-							Actions
-						</th>
-					</tr>
-				</thead>
-				<tbody className="divide-y divide-slate-100">
-					{items.map((expense) => (
-						<tr key={expense.id} className="hover:bg-slate-50">
-							<td className="px-4 py-3 text-sm font-semibold text-slate-800">
-								{categoryLookup[String(expense.categoryId)] ??
-									expense.categoryId}
-							</td>
-							<td className="px-4 py-3 text-sm text-slate-600">
-								{expense.description || "—"}
-							</td>
-							<td className="px-4 py-3 text-sm font-semibold text-slate-900">
-								{formatCurrency(expense.amount / 100)}
-							</td>
-							<td className="px-4 py-3 text-sm text-slate-600">
-								{expense.date ? formatDate(expense.date) : "—"}
-							</td>
-							<td className="px-4 py-3">
-								<div className="flex items-center justify-end gap-2">
-									<Link
-										to="/expenses/$expenseId"
-										params={{ expenseId: String(expense.id) }}
-										className="rounded-md border border-blue-200 px-3 py-1.5 text-xs font-semibold text-blue-700 transition hover:bg-blue-50"
-									>
-										Edit
-									</Link>
-									<button
-										type="button"
-										onClick={() => onDelete(expense.id)}
-										disabled={isDeleting}
-										className="rounded-md border border-red-200 px-3 py-1.5 text-xs font-semibold text-red-700 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60"
-									>
-										{isDeleting ? "Deleting..." : "Delete"}
-									</button>
-								</div>
-							</td>
+			<div className="w-full overflow-x-auto">
+				<table className="min-w-[720px] w-full divide-y divide-slate-200">
+					<thead className="bg-slate-50">
+						<tr>
+							<SortableHeader
+								field="category_id"
+								label="Category"
+								sorting={sorting}
+								onToggle={onToggleSort}
+							/>
+							<th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
+								Description
+							</th>
+							<SortableHeader
+								field="amount"
+								label="Amount"
+								sorting={sorting}
+								onToggle={onToggleSort}
+							/>
+							<SortableHeader
+								field="date"
+								label="Date"
+								sorting={sorting}
+								onToggle={onToggleSort}
+							/>
+							<th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wide text-slate-500">
+								Actions
+							</th>
 						</tr>
-					))}
-				</tbody>
-			</table>
+					</thead>
+					<tbody className="divide-y divide-slate-100">
+						{items.map((expense) => (
+							<tr key={expense.id} className="hover:bg-slate-50">
+								<td className="px-4 py-3 text-sm font-semibold text-slate-800">
+									{categoryLookup[String(expense.categoryId)] ??
+										expense.categoryId}
+								</td>
+								<td className="px-4 py-3 text-sm text-slate-600">
+									{expense.description || "—"}
+								</td>
+								<td className="px-4 py-3 text-sm font-semibold text-slate-900">
+									{formatCurrency(expense.amount / 100)}
+								</td>
+								<td className="px-4 py-3 text-sm text-slate-600">
+									{expense.date ? formatDate(expense.date) : "—"}
+								</td>
+								<td className="px-4 py-3">
+									<div className="flex items-center justify-end gap-2">
+										<Link
+											to="/expenses/$expenseId"
+											params={{ expenseId: String(expense.id) }}
+											className="rounded-md border border-blue-200 px-3 py-1.5 text-xs font-semibold text-blue-700 transition hover:bg-blue-50"
+										>
+											Edit
+										</Link>
+										<button
+											type="button"
+											onClick={() => onDelete(expense.id)}
+											disabled={isDeleting}
+											className="rounded-md border border-red-200 px-3 py-1.5 text-xs font-semibold text-red-700 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60"
+										>
+											{isDeleting ? "Deleting..." : "Delete"}
+										</button>
+									</div>
+								</td>
+							</tr>
+						))}
+					</tbody>
+				</table>
+			</div>
 		</div>
 	);
 }

@@ -30,21 +30,28 @@ const buildFilters = (
 	}
 
 	const now = new Date();
-	const startOfDaySec = (date: Date): number =>
-		Math.floor(
-			Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()) / 1000,
-		);
-	const endOfDaySec = (date: Date): number =>
-		Math.floor(
-			Date.UTC(
-				date.getFullYear(),
-				date.getMonth(),
-				date.getDate(),
-				23,
-				59,
-				59,
-			) / 1000,
-		);
+	const startOfDaySec = (date: Date): number => {
+		const copy = new Date(date);
+		copy.setHours(0, 0, 0, 0);
+		return Math.floor(copy.getTime() / 1000);
+	};
+	const endOfDaySec = (date: Date): number => {
+		const copy = new Date(date);
+		copy.setHours(23, 59, 59, 999);
+		return Math.floor(copy.getTime() / 1000);
+	};
+	const parseInputDate = (value: string): Date | null => {
+		if (!value) return null;
+
+		const dateOnlyPattern = /^\d{4}-\d{2}-\d{2}$/;
+		if (dateOnlyPattern.test(value)) {
+			const [year, month, day] = value.split("-").map((part) => Number(part));
+			return new Date(year, month - 1, day);
+		}
+
+		const parsed = new Date(value);
+		return Number.isNaN(parsed.getTime()) ? null : parsed;
+	};
 
 	const addDateRange = (start?: number, end?: number) => {
 		if (start !== undefined) {
@@ -80,9 +87,11 @@ const buildFilters = (
 			addDateRange(startOfDaySec(start), endOfDaySec(now));
 		} else if (dateValue === "custom") {
 			if (startDate && endDate) {
-				const start = startOfDaySec(new Date(startDate));
-				const end = endOfDaySec(new Date(endDate));
-				addDateRange(start, end);
+				const startDateObj = parseInputDate(startDate);
+				const endDateObj = parseInputDate(endDate);
+				if (startDateObj && endDateObj) {
+					addDateRange(startOfDaySec(startDateObj), endOfDaySec(endDateObj));
+				}
 			}
 		}
 	}
