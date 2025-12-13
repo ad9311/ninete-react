@@ -27,6 +27,9 @@ function RouteComponent() {
 	const { isPending, isFetching, isError, data } = useQuery({
 		queryKey: ["authRefresh"],
 		queryFn: refresh,
+		refetchOnWindowFocus: false,
+		refetchOnReconnect: false,
+		staleTime: 5 * 60 * 1000,
 		retry: false,
 	});
 
