@@ -7,6 +7,7 @@ export type DateFilterValue =
 	| "last7"
 	| "thisMonth"
 	| "lastMonth"
+	| "nextMonth"
 	| "sixMonths"
 	| "thisYear"
 	| "custom";
@@ -62,30 +63,48 @@ const buildFilters = (
 		}
 	};
 
-	if (dateValue !== "all") {
-		if (dateValue === "today") {
+	switch (dateValue) {
+		case "today": {
 			const start = startOfDaySec(now);
 			const end = endOfDaySec(now);
 			addDateRange(start, end);
-		} else if (dateValue === "last7") {
+			break;
+		}
+		case "last7": {
 			const start = new Date(now);
 			start.setDate(now.getDate() - 6);
 			addDateRange(startOfDaySec(start), endOfDaySec(now));
-		} else if (dateValue === "thisMonth") {
+			break;
+		}
+		case "thisMonth": {
 			const start = new Date(now.getFullYear(), now.getMonth(), 1);
 			addDateRange(startOfDaySec(start), endOfDaySec(now));
-		} else if (dateValue === "lastMonth") {
+			break;
+		}
+		case "lastMonth": {
 			const start = new Date(now.getFullYear(), now.getMonth() - 1, 1);
 			const end = new Date(now.getFullYear(), now.getMonth(), 0);
 			addDateRange(startOfDaySec(start), endOfDaySec(end));
-		} else if (dateValue === "sixMonths") {
+			break;
+		}
+		case "nextMonth": {
+			const start = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+			const end = new Date(now.getFullYear(), now.getMonth() + 2, 0);
+			addDateRange(startOfDaySec(start), endOfDaySec(end));
+			break;
+		}
+		case "sixMonths": {
 			const start = new Date(now);
 			start.setMonth(now.getMonth() - 6);
 			addDateRange(startOfDaySec(start), endOfDaySec(now));
-		} else if (dateValue === "thisYear") {
+			break;
+		}
+		case "thisYear": {
 			const start = new Date(now.getFullYear(), 0, 1);
 			addDateRange(startOfDaySec(start), endOfDaySec(now));
-		} else if (dateValue === "custom") {
+			break;
+		}
+		case "custom": {
 			if (startDate && endDate) {
 				const startDateObj = parseInputDate(startDate);
 				const endDateObj = parseInputDate(endDate);
@@ -93,19 +112,24 @@ const buildFilters = (
 					addDateRange(startOfDaySec(startDateObj), endOfDaySec(endDateObj));
 				}
 			}
+			break;
 		}
+		default:
+			break;
 	}
 
 	return fields.length > 0 ? { fields, connector: "AND" } : undefined;
 };
 
 export function useExpenseQueryOptions(initialPerPage = 20) {
+	const initialDateFilter: DateFilterValue = "thisMonth";
 	const [categoryFilter, setCategoryFilter] = useState<string>("");
-	const [dateFilter, setDateFilter] = useState<DateFilterValue>("all");
+	const [dateFilter, setDateFilter] =
+		useState<DateFilterValue>(initialDateFilter);
 	const [customStart, setCustomStart] = useState<string>("");
 	const [customEnd, setCustomEnd] = useState<string>("");
 	const [queryOptions, setQueryOptions] = useState<QueryOptions>({
-		filters: undefined,
+		filters: buildFilters("", initialDateFilter, "", ""),
 		sorting: {
 			field: "amount",
 			order: "desc",
