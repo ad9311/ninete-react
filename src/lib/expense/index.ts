@@ -144,6 +144,33 @@ function normalizeExpense(raw: unknown): Expense {
 	};
 }
 
+function parseMetaRecord(meta: unknown): Record<string, unknown> | null {
+	if (!meta) return null;
+	if (typeof meta === "object") {
+		return meta as Record<string, unknown>;
+	}
+	if (typeof meta === "string") {
+		try {
+			const parsed = JSON.parse(meta) as unknown;
+			return parsed && typeof parsed === "object"
+				? (parsed as Record<string, unknown>)
+				: null;
+		} catch {
+			return null;
+		}
+	}
+	return null;
+}
+
+function pickNumber(...values: unknown[]): number | undefined {
+	for (const value of values) {
+		if (value === null || value === undefined) continue;
+		const parsed = Number(value);
+		if (Number.isFinite(parsed)) return parsed;
+	}
+	return undefined;
+}
+
 export function expensePayloadFromForm(
 	event: FormEvent<HTMLFormElement>,
 ): ExpensePayload {
@@ -176,27 +203,39 @@ export async function listExpenses(
 		accessToken,
 	});
 
-	const source =
-		(response.data as unknown as Record<string, unknown>) ||
-		({} as Record<string, unknown>);
-	const itemsRaw = Array.isArray(response.data)
-		? response.data
-		: Array.isArray((source as Record<string, unknown>).data)
-			? ((source as Record<string, unknown>).data as unknown[])
-			: [];
-	const perPage = Number(
-		(source as Record<string, unknown>).perPage ??
-			queryOptions?.pagination?.perPage ??
-			0,
-	);
-	const page = Number(
-		(source as Record<string, unknown>).page ??
-			queryOptions?.pagination?.page ??
-			1,
-	);
-	const rows = Number(
-		(source as Record<string, unknown>).rows ?? itemsRaw.length,
-	);
+	const responseRecord = response as Record<string, unknown>;
+	const data = response.data as unknown;
+	const dataRecord =
+		data && typeof data === "object" && !Array.isArray(data)
+			? (data as Record<string, unknown>)
+			: null;
+	const metaRecord = parseMetaRecord(responseRecord.meta ?? response.meta);
+	const itemsRaw = Array.isArray(data)
+		? data
+		: Array.isArray(dataRecord?.items)
+			? (dataRecord.items as unknown[])
+			: Array.isArray(dataRecord?.data)
+				? (dataRecord.data as unknown[])
+				: Array.isArray(responseRecord.items)
+					? (responseRecord.items as unknown[])
+					: [];
+	const perPage =
+		pickNumber(
+			dataRecord?.perPage,
+			responseRecord.perPage,
+			metaRecord?.perPage,
+			queryOptions?.pagination?.perPage,
+		) ?? 0;
+	const page =
+		pickNumber(
+			dataRecord?.page,
+			responseRecord.page,
+			metaRecord?.page,
+			queryOptions?.pagination?.page,
+		) ?? 1;
+	const rows =
+		pickNumber(dataRecord?.rows, responseRecord.rows, metaRecord?.rows) ??
+		itemsRaw.length;
 
 	return {
 		...response,
