@@ -2,6 +2,9 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo } from "react";
 import Loading from "@/components/Loading";
+import RecurrentExpenseFilters from "@/components/recurrent-expense/RecurrentExpenseFilters";
+import RecurrentExpensesTable from "@/components/recurrent-expense/RecurrentExpensesTable";
+import { useRecurrentExpenseQueryOptions } from "@/hooks/recurrent-expense/useRecurrentExpenseQueryOptions";
 import { useAlert } from "@/lib";
 import { useAuth } from "@/lib/auth";
 import { useCategories } from "@/lib/category";
@@ -10,9 +13,6 @@ import {
 	listRecurrentExpenses,
 	type RecurrentExpenseList,
 } from "@/lib/recurrent-expense";
-import RecurrentExpenseFilters from "./RecurrentExpenseFilters";
-import RecurrentExpensesTable from "./RecurrentExpensesTable";
-import { useRecurrentExpenseQueryOptions } from "./useRecurrentExpenseQueryOptions";
 
 export const Route = createFileRoute("/_mainlayout/recurrent-expenses/")({
 	component: RouteComponent,

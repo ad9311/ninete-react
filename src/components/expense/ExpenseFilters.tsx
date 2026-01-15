@@ -1,5 +1,5 @@
+import type { DateFilterValue } from "@/hooks/expense/useExpenseQueryOptions";
 import type { Category } from "@/lib/category";
-import type { DateFilterValue } from "./useExpenseQueryOptions";
 
 type ExpenseFiltersProps = {
 	categories: Category[];
