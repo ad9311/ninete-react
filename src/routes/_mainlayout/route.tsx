@@ -38,6 +38,12 @@ function RouteComponent() {
 						>
 							Expenses
 						</Link>
+						<Link
+							to="/recurrent-expenses"
+							className="rounded-md px-3 py-2 text-sm font-semibold text-slate-700 transition hover:bg-blue-50 hover:text-blue-700"
+						>
+							Recurrent expenses
+						</Link>
 						{user ? (
 							<span className="hidden text-xs font-medium text-slate-500 sm:inline">
 								{user.email}

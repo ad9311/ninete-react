@@ -15,8 +15,11 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthSignUpRouteImport } from './routes/auth/sign-up'
 import { Route as AuthSignInRouteImport } from './routes/auth/sign-in'
 import { Route as MainlayoutHomeRouteImport } from './routes/_mainlayout/home'
+import { Route as MainlayoutRecurrentExpensesRouteRouteImport } from './routes/_mainlayout/recurrent-expenses/route'
 import { Route as MainlayoutExpensesRouteRouteImport } from './routes/_mainlayout/expenses/route'
+import { Route as MainlayoutRecurrentExpensesIndexRouteImport } from './routes/_mainlayout/recurrent-expenses/index'
 import { Route as MainlayoutExpensesIndexRouteImport } from './routes/_mainlayout/expenses/index'
+import { Route as MainlayoutRecurrentExpensesNewRouteImport } from './routes/_mainlayout/recurrent-expenses/new'
 import { Route as MainlayoutExpensesNewRouteImport } from './routes/_mainlayout/expenses/new'
 import { Route as MainlayoutExpensesExpenseIdRouteImport } from './routes/_mainlayout/expenses/$expenseId'
 
@@ -49,16 +52,34 @@ const MainlayoutHomeRoute = MainlayoutHomeRouteImport.update({
   path: '/home',
   getParentRoute: () => MainlayoutRouteRoute,
 } as any)
+const MainlayoutRecurrentExpensesRouteRoute =
+  MainlayoutRecurrentExpensesRouteRouteImport.update({
+    id: '/recurrent-expenses',
+    path: '/recurrent-expenses',
+    getParentRoute: () => MainlayoutRouteRoute,
+  } as any)
 const MainlayoutExpensesRouteRoute = MainlayoutExpensesRouteRouteImport.update({
   id: '/expenses',
   path: '/expenses',
   getParentRoute: () => MainlayoutRouteRoute,
 } as any)
+const MainlayoutRecurrentExpensesIndexRoute =
+  MainlayoutRecurrentExpensesIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => MainlayoutRecurrentExpensesRouteRoute,
+  } as any)
 const MainlayoutExpensesIndexRoute = MainlayoutExpensesIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => MainlayoutExpensesRouteRoute,
 } as any)
+const MainlayoutRecurrentExpensesNewRoute =
+  MainlayoutRecurrentExpensesNewRouteImport.update({
+    id: '/new',
+    path: '/new',
+    getParentRoute: () => MainlayoutRecurrentExpensesRouteRoute,
+  } as any)
 const MainlayoutExpensesNewRoute = MainlayoutExpensesNewRouteImport.update({
   id: '/new',
   path: '/new',
@@ -75,12 +96,15 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRouteRouteWithChildren
   '/expenses': typeof MainlayoutExpensesRouteRouteWithChildren
+  '/recurrent-expenses': typeof MainlayoutRecurrentExpensesRouteRouteWithChildren
   '/home': typeof MainlayoutHomeRoute
   '/auth/sign-in': typeof AuthSignInRoute
   '/auth/sign-up': typeof AuthSignUpRoute
   '/expenses/$expenseId': typeof MainlayoutExpensesExpenseIdRoute
   '/expenses/new': typeof MainlayoutExpensesNewRoute
+  '/recurrent-expenses/new': typeof MainlayoutRecurrentExpensesNewRoute
   '/expenses/': typeof MainlayoutExpensesIndexRoute
+  '/recurrent-expenses/': typeof MainlayoutRecurrentExpensesIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -90,7 +114,9 @@ export interface FileRoutesByTo {
   '/auth/sign-up': typeof AuthSignUpRoute
   '/expenses/$expenseId': typeof MainlayoutExpensesExpenseIdRoute
   '/expenses/new': typeof MainlayoutExpensesNewRoute
+  '/recurrent-expenses/new': typeof MainlayoutRecurrentExpensesNewRoute
   '/expenses': typeof MainlayoutExpensesIndexRoute
+  '/recurrent-expenses': typeof MainlayoutRecurrentExpensesIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -98,12 +124,15 @@ export interface FileRoutesById {
   '/_mainlayout': typeof MainlayoutRouteRouteWithChildren
   '/auth': typeof AuthRouteRouteWithChildren
   '/_mainlayout/expenses': typeof MainlayoutExpensesRouteRouteWithChildren
+  '/_mainlayout/recurrent-expenses': typeof MainlayoutRecurrentExpensesRouteRouteWithChildren
   '/_mainlayout/home': typeof MainlayoutHomeRoute
   '/auth/sign-in': typeof AuthSignInRoute
   '/auth/sign-up': typeof AuthSignUpRoute
   '/_mainlayout/expenses/$expenseId': typeof MainlayoutExpensesExpenseIdRoute
   '/_mainlayout/expenses/new': typeof MainlayoutExpensesNewRoute
+  '/_mainlayout/recurrent-expenses/new': typeof MainlayoutRecurrentExpensesNewRoute
   '/_mainlayout/expenses/': typeof MainlayoutExpensesIndexRoute
+  '/_mainlayout/recurrent-expenses/': typeof MainlayoutRecurrentExpensesIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -111,12 +140,15 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/expenses'
+    | '/recurrent-expenses'
     | '/home'
     | '/auth/sign-in'
     | '/auth/sign-up'
     | '/expenses/$expenseId'
     | '/expenses/new'
+    | '/recurrent-expenses/new'
     | '/expenses/'
+    | '/recurrent-expenses/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -126,19 +158,24 @@ export interface FileRouteTypes {
     | '/auth/sign-up'
     | '/expenses/$expenseId'
     | '/expenses/new'
+    | '/recurrent-expenses/new'
     | '/expenses'
+    | '/recurrent-expenses'
   id:
     | '__root__'
     | '/'
     | '/_mainlayout'
     | '/auth'
     | '/_mainlayout/expenses'
+    | '/_mainlayout/recurrent-expenses'
     | '/_mainlayout/home'
     | '/auth/sign-in'
     | '/auth/sign-up'
     | '/_mainlayout/expenses/$expenseId'
     | '/_mainlayout/expenses/new'
+    | '/_mainlayout/recurrent-expenses/new'
     | '/_mainlayout/expenses/'
+    | '/_mainlayout/recurrent-expenses/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -191,6 +228,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MainlayoutHomeRouteImport
       parentRoute: typeof MainlayoutRouteRoute
     }
+    '/_mainlayout/recurrent-expenses': {
+      id: '/_mainlayout/recurrent-expenses'
+      path: '/recurrent-expenses'
+      fullPath: '/recurrent-expenses'
+      preLoaderRoute: typeof MainlayoutRecurrentExpensesRouteRouteImport
+      parentRoute: typeof MainlayoutRouteRoute
+    }
     '/_mainlayout/expenses': {
       id: '/_mainlayout/expenses'
       path: '/expenses'
@@ -198,12 +242,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MainlayoutExpensesRouteRouteImport
       parentRoute: typeof MainlayoutRouteRoute
     }
+    '/_mainlayout/recurrent-expenses/': {
+      id: '/_mainlayout/recurrent-expenses/'
+      path: '/'
+      fullPath: '/recurrent-expenses/'
+      preLoaderRoute: typeof MainlayoutRecurrentExpensesIndexRouteImport
+      parentRoute: typeof MainlayoutRecurrentExpensesRouteRoute
+    }
     '/_mainlayout/expenses/': {
       id: '/_mainlayout/expenses/'
       path: '/'
       fullPath: '/expenses/'
       preLoaderRoute: typeof MainlayoutExpensesIndexRouteImport
       parentRoute: typeof MainlayoutExpensesRouteRoute
+    }
+    '/_mainlayout/recurrent-expenses/new': {
+      id: '/_mainlayout/recurrent-expenses/new'
+      path: '/new'
+      fullPath: '/recurrent-expenses/new'
+      preLoaderRoute: typeof MainlayoutRecurrentExpensesNewRouteImport
+      parentRoute: typeof MainlayoutRecurrentExpensesRouteRoute
     }
     '/_mainlayout/expenses/new': {
       id: '/_mainlayout/expenses/new'
@@ -240,13 +298,33 @@ const MainlayoutExpensesRouteRouteWithChildren =
     MainlayoutExpensesRouteRouteChildren,
   )
 
+interface MainlayoutRecurrentExpensesRouteRouteChildren {
+  MainlayoutRecurrentExpensesNewRoute: typeof MainlayoutRecurrentExpensesNewRoute
+  MainlayoutRecurrentExpensesIndexRoute: typeof MainlayoutRecurrentExpensesIndexRoute
+}
+
+const MainlayoutRecurrentExpensesRouteRouteChildren: MainlayoutRecurrentExpensesRouteRouteChildren =
+  {
+    MainlayoutRecurrentExpensesNewRoute: MainlayoutRecurrentExpensesNewRoute,
+    MainlayoutRecurrentExpensesIndexRoute:
+      MainlayoutRecurrentExpensesIndexRoute,
+  }
+
+const MainlayoutRecurrentExpensesRouteRouteWithChildren =
+  MainlayoutRecurrentExpensesRouteRoute._addFileChildren(
+    MainlayoutRecurrentExpensesRouteRouteChildren,
+  )
+
 interface MainlayoutRouteRouteChildren {
   MainlayoutExpensesRouteRoute: typeof MainlayoutExpensesRouteRouteWithChildren
+  MainlayoutRecurrentExpensesRouteRoute: typeof MainlayoutRecurrentExpensesRouteRouteWithChildren
   MainlayoutHomeRoute: typeof MainlayoutHomeRoute
 }
 
 const MainlayoutRouteRouteChildren: MainlayoutRouteRouteChildren = {
   MainlayoutExpensesRouteRoute: MainlayoutExpensesRouteRouteWithChildren,
+  MainlayoutRecurrentExpensesRouteRoute:
+    MainlayoutRecurrentExpensesRouteRouteWithChildren,
   MainlayoutHomeRoute: MainlayoutHomeRoute,
 }
 
