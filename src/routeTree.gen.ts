@@ -20,6 +20,7 @@ import { Route as MainlayoutExpensesRouteRouteImport } from './routes/_mainlayou
 import { Route as MainlayoutRecurrentExpensesIndexRouteImport } from './routes/_mainlayout/recurrent-expenses/index'
 import { Route as MainlayoutExpensesIndexRouteImport } from './routes/_mainlayout/expenses/index'
 import { Route as MainlayoutRecurrentExpensesNewRouteImport } from './routes/_mainlayout/recurrent-expenses/new'
+import { Route as MainlayoutRecurrentExpensesRecurrentExpenseIdRouteImport } from './routes/_mainlayout/recurrent-expenses/$recurrentExpenseId'
 import { Route as MainlayoutExpensesNewRouteImport } from './routes/_mainlayout/expenses/new'
 import { Route as MainlayoutExpensesExpenseIdRouteImport } from './routes/_mainlayout/expenses/$expenseId'
 
@@ -80,6 +81,12 @@ const MainlayoutRecurrentExpensesNewRoute =
     path: '/new',
     getParentRoute: () => MainlayoutRecurrentExpensesRouteRoute,
   } as any)
+const MainlayoutRecurrentExpensesRecurrentExpenseIdRoute =
+  MainlayoutRecurrentExpensesRecurrentExpenseIdRouteImport.update({
+    id: '/$recurrentExpenseId',
+    path: '/$recurrentExpenseId',
+    getParentRoute: () => MainlayoutRecurrentExpensesRouteRoute,
+  } as any)
 const MainlayoutExpensesNewRoute = MainlayoutExpensesNewRouteImport.update({
   id: '/new',
   path: '/new',
@@ -102,6 +109,7 @@ export interface FileRoutesByFullPath {
   '/auth/sign-up': typeof AuthSignUpRoute
   '/expenses/$expenseId': typeof MainlayoutExpensesExpenseIdRoute
   '/expenses/new': typeof MainlayoutExpensesNewRoute
+  '/recurrent-expenses/$recurrentExpenseId': typeof MainlayoutRecurrentExpensesRecurrentExpenseIdRoute
   '/recurrent-expenses/new': typeof MainlayoutRecurrentExpensesNewRoute
   '/expenses/': typeof MainlayoutExpensesIndexRoute
   '/recurrent-expenses/': typeof MainlayoutRecurrentExpensesIndexRoute
@@ -114,6 +122,7 @@ export interface FileRoutesByTo {
   '/auth/sign-up': typeof AuthSignUpRoute
   '/expenses/$expenseId': typeof MainlayoutExpensesExpenseIdRoute
   '/expenses/new': typeof MainlayoutExpensesNewRoute
+  '/recurrent-expenses/$recurrentExpenseId': typeof MainlayoutRecurrentExpensesRecurrentExpenseIdRoute
   '/recurrent-expenses/new': typeof MainlayoutRecurrentExpensesNewRoute
   '/expenses': typeof MainlayoutExpensesIndexRoute
   '/recurrent-expenses': typeof MainlayoutRecurrentExpensesIndexRoute
@@ -130,6 +139,7 @@ export interface FileRoutesById {
   '/auth/sign-up': typeof AuthSignUpRoute
   '/_mainlayout/expenses/$expenseId': typeof MainlayoutExpensesExpenseIdRoute
   '/_mainlayout/expenses/new': typeof MainlayoutExpensesNewRoute
+  '/_mainlayout/recurrent-expenses/$recurrentExpenseId': typeof MainlayoutRecurrentExpensesRecurrentExpenseIdRoute
   '/_mainlayout/recurrent-expenses/new': typeof MainlayoutRecurrentExpensesNewRoute
   '/_mainlayout/expenses/': typeof MainlayoutExpensesIndexRoute
   '/_mainlayout/recurrent-expenses/': typeof MainlayoutRecurrentExpensesIndexRoute
@@ -146,6 +156,7 @@ export interface FileRouteTypes {
     | '/auth/sign-up'
     | '/expenses/$expenseId'
     | '/expenses/new'
+    | '/recurrent-expenses/$recurrentExpenseId'
     | '/recurrent-expenses/new'
     | '/expenses/'
     | '/recurrent-expenses/'
@@ -158,6 +169,7 @@ export interface FileRouteTypes {
     | '/auth/sign-up'
     | '/expenses/$expenseId'
     | '/expenses/new'
+    | '/recurrent-expenses/$recurrentExpenseId'
     | '/recurrent-expenses/new'
     | '/expenses'
     | '/recurrent-expenses'
@@ -173,6 +185,7 @@ export interface FileRouteTypes {
     | '/auth/sign-up'
     | '/_mainlayout/expenses/$expenseId'
     | '/_mainlayout/expenses/new'
+    | '/_mainlayout/recurrent-expenses/$recurrentExpenseId'
     | '/_mainlayout/recurrent-expenses/new'
     | '/_mainlayout/expenses/'
     | '/_mainlayout/recurrent-expenses/'
@@ -263,6 +276,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MainlayoutRecurrentExpensesNewRouteImport
       parentRoute: typeof MainlayoutRecurrentExpensesRouteRoute
     }
+    '/_mainlayout/recurrent-expenses/$recurrentExpenseId': {
+      id: '/_mainlayout/recurrent-expenses/$recurrentExpenseId'
+      path: '/$recurrentExpenseId'
+      fullPath: '/recurrent-expenses/$recurrentExpenseId'
+      preLoaderRoute: typeof MainlayoutRecurrentExpensesRecurrentExpenseIdRouteImport
+      parentRoute: typeof MainlayoutRecurrentExpensesRouteRoute
+    }
     '/_mainlayout/expenses/new': {
       id: '/_mainlayout/expenses/new'
       path: '/new'
@@ -299,12 +319,15 @@ const MainlayoutExpensesRouteRouteWithChildren =
   )
 
 interface MainlayoutRecurrentExpensesRouteRouteChildren {
+  MainlayoutRecurrentExpensesRecurrentExpenseIdRoute: typeof MainlayoutRecurrentExpensesRecurrentExpenseIdRoute
   MainlayoutRecurrentExpensesNewRoute: typeof MainlayoutRecurrentExpensesNewRoute
   MainlayoutRecurrentExpensesIndexRoute: typeof MainlayoutRecurrentExpensesIndexRoute
 }
 
 const MainlayoutRecurrentExpensesRouteRouteChildren: MainlayoutRecurrentExpensesRouteRouteChildren =
   {
+    MainlayoutRecurrentExpensesRecurrentExpenseIdRoute:
+      MainlayoutRecurrentExpensesRecurrentExpenseIdRoute,
     MainlayoutRecurrentExpensesNewRoute: MainlayoutRecurrentExpensesNewRoute,
     MainlayoutRecurrentExpensesIndexRoute:
       MainlayoutRecurrentExpensesIndexRoute,
