@@ -43,6 +43,7 @@ function RouteComponent() {
 		queryOptions,
 		categoryFilter,
 		handleCategoryFilterChange,
+		handlePerPageChange,
 		toggleSort,
 		goToPage,
 		resetPage,
@@ -110,6 +111,9 @@ function RouteComponent() {
 		recurrentQuery.data?.page ?? queryOptions.pagination?.page ?? 1;
 	const perPage =
 		recurrentQuery.data?.perPage ?? queryOptions.pagination?.perPage ?? 20;
+	const perPageOptions = Array.from(new Set([perPage, 10, 20, 50])).sort(
+		(a, b) => a - b,
+	);
 	const totalRows = recurrentQuery.data?.rows ?? 0;
 	const canGoNext = currentPage * perPage < totalRows;
 	const canGoPrev = currentPage > 1;
@@ -149,6 +153,9 @@ function RouteComponent() {
 				categories={categories}
 				categoryValue={categoryFilter}
 				onCategoryChange={handleCategoryFilterChange}
+				perPage={perPage}
+				perPageOptions={perPageOptions}
+				onPerPageChange={handlePerPageChange}
 				pagination={{
 					currentPage,
 					canGoPrev,

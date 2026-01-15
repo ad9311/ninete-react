@@ -44,6 +44,7 @@ function RouteComponent() {
 		handleCategoryFilterChange,
 		handleDateFilterChange,
 		handleCustomDateChange,
+		handlePerPageChange,
 		toggleSort,
 		goToPage,
 		resetPage,
@@ -108,6 +109,9 @@ function RouteComponent() {
 		expensesQuery.data?.page ?? queryOptions.pagination?.page ?? 1;
 	const perPage =
 		expensesQuery.data?.perPage ?? queryOptions.pagination?.perPage ?? 20;
+	const perPageOptions = Array.from(new Set([perPage, 10, 20, 50])).sort(
+		(a, b) => a - b,
+	);
 	const totalRows = expensesQuery.data?.rows ?? 0;
 	const canGoNext = currentPage * perPage < totalRows;
 	const canGoPrev = currentPage > 1;
@@ -152,6 +156,9 @@ function RouteComponent() {
 				onCategoryChange={handleCategoryFilterChange}
 				onDateChange={handleDateFilterChange}
 				onCustomDateChange={handleCustomDateChange}
+				perPage={perPage}
+				perPageOptions={perPageOptions}
+				onPerPageChange={handlePerPageChange}
 				pagination={{
 					currentPage,
 					canGoPrev,

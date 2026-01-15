@@ -4,6 +4,9 @@ type RecurrentExpenseFiltersProps = {
 	categories: Category[];
 	categoryValue: string;
 	onCategoryChange: (value: string) => void;
+	perPage: number;
+	perPageOptions: number[];
+	onPerPageChange: (value: number) => void;
 	pagination: {
 		currentPage: number;
 		canGoPrev: boolean;
@@ -18,6 +21,9 @@ function RecurrentExpenseFilters({
 	categories,
 	categoryValue,
 	onCategoryChange,
+	perPage,
+	perPageOptions,
+	onPerPageChange,
 	pagination,
 }: RecurrentExpenseFiltersProps) {
 	return (
@@ -44,6 +50,20 @@ function RecurrentExpenseFilters({
 				</select>
 			</div>
 			<div className="flex items-center gap-2 text-sm text-slate-600">
+				<label className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-slate-500">
+					<span>Per page</span>
+					<select
+						value={String(perPage)}
+						onChange={(e) => onPerPageChange(Number(e.target.value))}
+						className="rounded-md border border-slate-200 bg-slate-50 px-2 py-1 text-xs font-semibold text-slate-700 outline-none transition focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-100"
+					>
+						{perPageOptions.map((option) => (
+							<option key={option} value={option}>
+								{option}
+							</option>
+						))}
+					</select>
+				</label>
 				<button
 					type="button"
 					onClick={pagination.onReset}

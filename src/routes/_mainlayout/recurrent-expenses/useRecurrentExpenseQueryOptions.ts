@@ -95,10 +95,21 @@ export function useRecurrentExpenseQueryOptions(initialPerPage = 20) {
 		}));
 	}, [initialPerPage]);
 
+	const handlePerPageChange = useCallback((value: number) => {
+		setQueryOptions((prev) => ({
+			...prev,
+			pagination: {
+				perPage: value,
+				page: 1,
+			},
+		}));
+	}, []);
+
 	return {
 		queryOptions,
 		categoryFilter,
 		handleCategoryFilterChange,
+		handlePerPageChange,
 		toggleSort,
 		goToPage,
 		resetPage,

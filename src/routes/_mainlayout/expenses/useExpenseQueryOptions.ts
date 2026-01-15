@@ -235,6 +235,16 @@ export function useExpenseQueryOptions(initialPerPage = 20) {
 		}));
 	}, [initialPerPage]);
 
+	const handlePerPageChange = useCallback((value: number) => {
+		setQueryOptions((prev) => ({
+			...prev,
+			pagination: {
+				perPage: value,
+				page: 1,
+			},
+		}));
+	}, []);
+
 	return {
 		queryOptions,
 		categoryFilter,
@@ -244,6 +254,7 @@ export function useExpenseQueryOptions(initialPerPage = 20) {
 		handleCategoryFilterChange,
 		handleDateFilterChange,
 		handleCustomDateChange,
+		handlePerPageChange,
 		toggleSort,
 		goToPage,
 		resetPage,
